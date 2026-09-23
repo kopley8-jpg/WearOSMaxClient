@@ -1,78 +1,194 @@
-# React + TypeScript + Vite
+# MAX Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Неофициальный клиент MAX с прицелом на использование на Wear OS / смарт-часах.
 
-Currently, two official plugins are available:
+Проект находится на стадии reverse engineering протокола MAX и постепенной реализации собственного клиента.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Что уже работает
 
-## React Compiler
+- Подключение к серверу MAX через `MaxBridge`
+- Авторизация
+- Получение списка диалогов
+- Парсинг превью последнего сообщения
+- Отображение списка чатов
+- Аватары и названия чатов
+- Определение типов последнего сообщения:
+  - текст
+  - голосовое
+  - фото
+  - видео
+  - аудио
+  - файл
+  - звонок
+  - `CONTROL`
+  - `FORWARD`
+  - стикер
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- Загрузка/отправка голосового файла
+- Получение истории сообщений (прототип)
+- Web-интерфейс для разработки и тестирования UI в размере экрана Galaxy Watch 5
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+## UI
 
-## Expanding the ESLint configuration
+Сейчас веб-приложение используется как прототип интерфейса часов.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Целевой размер экрана:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```text
+450 × 450 px
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Для имитации круглого экрана используется контейнер:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```css
+width: 450px;
+height: 450px;
+border-radius: 50%;
+overflow: hidden;
 ```
+
+Планируемая навигация:
+
+```text
+ChatsScreen
+    ↓
+ChatScreen(chatId)
+    ↓
+назад
+    ↓
+ChatsScreen
+```
+
+Список чатов и сам чат не должны находиться одновременно на экране — интерфейс ориентирован на маленький круглый экран часов.
+
+## Архитектура
+
+Примерная структура:
+
+```text
+src/
+├── shared/
+│   ├── max/
+│   │   └── maxBridge
+│   ├── types/
+│   ├── constants/
+│   └── lib/
+│
+├── ui/
+│   ├── ChatList/
+│   │   └── ChatsList
+│   │
+│   └── ChatCard/
+│       ├── ChatCard
+│       └── ui/
+│           └── LastMessage
+│
+└── ...
+```
+
+В будущем экраны:
+
+```text
+screens/
+├── ChatsScreen/
+└── ChatScreen/
+```
+
+`selectedChat` не должен храниться в Zustand только ради навигации.
+
+Навигация должна передавать `chatId`:
+
+```ts
+navigation.navigate("Chat", {
+  chatId: chat.id,
+});
+```
+
+А Zustand должен хранить данные приложения: сообщения, историю, состояние загрузки, пагинацию и т.д.
+
+## Типы сообщений
+
+Текущая модель превью последнего сообщения поддерживает:
+
+```text
+text
+voice
+photo
+audio
+video
+file
+call
+control
+forward
+sticker
+```
+
+`FORWARD` пока определяется только по:
+
+```ts
+message.link?.type === "FORWARD";
+```
+
+Вложенное `link.message` пока не разбирается.
+
+Стикер пока отображается как обычное превью `"Стикер"`. Данные стикера (`stickerId`, `setId`, `url`, `lottieUrl` и т.д.) будут использоваться позже при реализации самого сообщения.
+
+## Ближайший план
+
+### 1. ChatScreen
+
+- [ ] Создать `ChatScreen`
+- [ ] Передавать `chatId` через navigation
+- [ ] Сделать кнопку/жест назад
+
+### 2. История
+
+- [ ] Разобрать реальный ответ `getHistory(chatId)`
+- [ ] Определить структуру сообщения
+- [ ] Сделать нормализованный тип `Message`
+- [ ] Реализовать пагинацию истории
+
+### 3. Сообщения
+
+- [ ] Текстовые сообщения
+- [ ] Отправка текстового сообщения
+- [ ] Получение новых сообщений через `PUSH`
+- [ ] `MessagesList`
+- [ ] Определение отправителя / `isMine`
+
+### 4. Медиа
+
+- [ ] Фото
+- [ ] Голосовые сообщения
+- [ ] Файлы
+- [ ] Видео
+- [ ] Аудио
+- [ ] Стикеры
+- [ ] Разобраться с загрузкой/скачиванием медиа
+
+### 5. Дополнительные типы
+
+- [ ] `FORWARD`
+- [ ] `CONTROL`
+- [ ] Звонки
+- [ ] Другие неизвестные типы сообщений по мере обнаружения
+
+### 6. Wear OS
+
+После того как основной клиент будет работать:
+
+- [ ] Перенести клиент на Wear OS
+- [ ] Оптимизировать UI под круглый экран
+- [ ] Оптимизировать список сообщений под 450×450
+- [ ] Сделать удобный скролл
+- [ ] Реализовать ввод текста
+- [ ] Реализовать отправку голосовых
+- [ ] Проверить работу на Galaxy Watch 5
+
+## Принцип разработки
+
+Сначала разобраться с реальным протоколом MAX и сделать рабочую реализацию.
+
+После этого — адаптировать готовую функциональность под ограничения Wear OS.
+
+Не пытаться заранее строить сложную архитектуру вокруг неизвестного поведения протокола.
