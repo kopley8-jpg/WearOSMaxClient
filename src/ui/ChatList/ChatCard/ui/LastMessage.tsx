@@ -1,4 +1,4 @@
-import { colors } from "../../../../shared/constants/colors";
+import { colors } from "../../../../shared/constants/theme";
 import { createStyles } from "../../../../shared/lib/createStyles";
 import type { ChatLastMessage } from "../../../../shared/types/types";
 
@@ -44,8 +44,11 @@ export const LastMessage = ({
 const useStyles = () => {
   return createStyles({
     text: {
+      fontFamily: "Roboto",
       fontSize: 14,
-      whiteSpace: "nowrap",
+      display: "-webkit-box",
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: "vertical",
       overflow: "hidden",
       textOverflow: "ellipsis",
       color: colors.onSecondaryContainer,

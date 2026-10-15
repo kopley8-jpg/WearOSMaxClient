@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { MaxBridge } from "./shared/max/maxBridge";
-import { ChatsList } from "./ui/ChatList/ChatsList";
 import { createStyles } from "./shared/lib/createStyles";
 import type { ChatPreview, Screen } from "./shared/types/types";
 import { ChatListScreen } from "./screens/ChatListScreen";
@@ -13,7 +12,6 @@ const App = () => {
   const [chats, setChats] = useState<ChatPreview[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedChat, setSelectedChat] = useState<ChatPreview | null>(null);
   const [screen, setScreen] = useState<Screen>({
     type: "chats",
   });
@@ -150,7 +148,8 @@ const useStyles = () => {
       width: 450,
       borderRadius: "50%",
       border: "1px solid black",
-      overflow: "scroll",
+      display: "flex",
+      overflow: "hidden",
     },
   });
 };

@@ -13,7 +13,7 @@ import {
   type MaxFrame,
 } from "./protocol";
 import { prepareVoiceMessage } from "./audio";
-import type { ChatLastMessage, ChatMessage, ChatPreview } from "../types/types";
+import type { ChatLastMessage, ChatPreview } from "../types/types";
 
 const execFileAsync = promisify(execFile);
 
@@ -165,19 +165,26 @@ export class MaxClient extends EventEmitter {
     chatId: ChatId,
     opts: { from?: bigint; forward?: number; backward?: number } = {},
   ) {
-    // "from" — точка отсчёта по времени (мс), от которой сервер листает
-    // "backward" сообщений назад. Без неё запрос уходит от условной точки 0
-    // и не находит ничего — поэтому по умолчанию берём "сейчас", это даёт
-    // последние `backward` сообщений чата.
     const from = opts.from ?? BigInt(Date.now());
-
     return this.request(49, {
       chatId: MAX_INT64(chatId),
-      from: MAX_INT64(from),
+      from: Number(from), // веб шлёт обычный uint64, не ext
       forward: opts.forward ?? 0,
       backward: opts.backward ?? 30,
-      getMessage: true,
+      getMessages: true, // было getMessage
     });
+  }
+
+  /** Страница истории строго старше `before`, по возрастанию времени. */
+  async getHistoryPage(chatId: ChatId, before?: bigint, count = 30) {
+    const res = await this.getHistory(chatId, {
+      from: before,
+      backward: count,
+    });
+    const msgs: any[] = res.messages ?? [];
+    return msgs
+      .filter((m) => before === undefined || BigInt(m.time) < before)
+      .sort((a, b) => (BigInt(a.time) < BigInt(b.time) ? -1 : 1));
   }
 
   /**

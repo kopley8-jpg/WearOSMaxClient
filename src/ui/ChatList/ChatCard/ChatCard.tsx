@@ -1,4 +1,4 @@
-import { colors } from "../../../shared/constants/colors";
+import { colors } from "../../../shared/constants/theme";
 import { createStyles } from "../../../shared/lib/createStyles";
 import type { ChatPreview } from "../../../shared/types/types";
 import { LastMessage } from "./ui/LastMessage";
@@ -6,7 +6,7 @@ import { LastMessage } from "./ui/LastMessage";
 type ChatCardProps = Omit<ChatPreview, "type"> & { onClick: () => void };
 
 export const ChatCard = (props: ChatCardProps) => {
-  const { id, title, avatarUrl, lastMessage, onClick } = props;
+  const { title, avatarUrl, lastMessage, onClick } = props;
   const styles = useStyles();
   return (
     <div style={styles.container} onClick={onClick}>
@@ -38,34 +38,36 @@ const useStyles = () => {
       display: "flex",
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: colors.secondaryContainer,
       paddingRight: 10,
       paddingLeft: 10,
       gap: 6,
       paddingTop: 6,
       paddingBottom: 6,
-      maxWidth: 200,
+      maxWidth: 300,
       cursor: "pointer",
+      border: "1px solid grey",
     },
     textContainer: {
       display: "flex",
       flexDirection: "column",
-      borderBottom: `1px solid ${colors.onSecondaryContainer}`,
+      height: "100%",
       flex: 1,
       minWidth: 0,
     },
     chatTitleText: {
-      fontSize: 16,
+      fontSize: 24,
+      fontFamily: "Roboto",
+      fontWeight: 600,
       whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",
       color: colors.onSecondaryContainer,
     },
     avatar: {
-      width: 40,
-      height: 40,
+      width: 63,
+      height: 63,
       objectFit: "fill",
-      borderRadius: 10,
+      borderRadius: "50%",
       backgroundColor: "white",
       flexShrink: 0,
     },

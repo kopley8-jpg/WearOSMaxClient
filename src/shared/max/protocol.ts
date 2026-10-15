@@ -104,20 +104,10 @@ export function decodeFrame(raw: Buffer): MaxFrame {
   const marker = Buffer.from("_type");
 
   for (let i = 0; i <= body.length - marker.length; i++) {
-    let match = true;
-
     for (let j = 0; j < marker.length; j++) {
       if (body[i + j] !== marker[j]) {
-        match = false;
         break;
       }
-    }
-
-    if (match) {
-      console.log(
-        "TYPE BYTES:",
-        Buffer.from(body.subarray(i, i + 25)).toString("hex"),
-      );
     }
   }
   const payload =
@@ -126,8 +116,6 @@ export function decodeFrame(raw: Buffer): MaxFrame {
       : undefined;
 
   inspectAudioTypes(payload);
-
-  console.log("DECODED PAYLOAD:", JSON.stringify(payload, bigintReplacer, 2));
 
   return { cmd, seq, opcode, flag, payload };
 }
