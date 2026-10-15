@@ -82,4 +82,4 @@ export type ChatMessage = {
     }
 );
 
-export type Screen = { type: "chats" } | { type: "chat"; chatId: number };
+export type Screen = { type: "chats" } | { type: "chat"; chatId: string };

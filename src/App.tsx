@@ -63,9 +63,9 @@ const App = () => {
       );
     });
 
-  const handleHistory = () =>
+  const handleHistory = (chatId: string) =>
     run(async () => {
-      const result = await bridgeRef.current!.getHistory();
+      const result = await bridgeRef.current!.getHistory(chatId);
       console.log("HISTORY:", result);
     });
 
@@ -78,9 +78,6 @@ const App = () => {
         <button onClick={handleUpload} disabled={busy || !connected}>
           Загрузить аудио
         </button>
-        <button onClick={handleHistory} disabled={busy || !connected}>
-          История
-        </button>
         <span>{connected ? "🟢 Connected" : "🔴 Disconnected"}</span>
         {busy && <span>⏳</span>}
       </div>
@@ -91,10 +88,7 @@ const App = () => {
           <a>Экран часов "Типа"</a>
           <div style={styles.watchScreen}>
             {screen.type === "chats" && (
-              <ChatListScreen
-                chats={chats}
-                onChatClick={(chatId) => setScreen({ type: "chat", chatId })}
-              />
+              <ChatListScreen chats={chats} onChatClick={handleHistory} />
             )}
             {screen.type === "chat" && (
               <ChatScreen

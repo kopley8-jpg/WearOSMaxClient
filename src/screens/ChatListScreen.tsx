@@ -5,14 +5,15 @@ import { ChatsList } from "../ui/ChatList/ChatsList";
 
 export const ChatListScreen = ({
   chats,
+  onChatClick,
 }: {
   chats: ChatPreview[];
-  onChatClick: (chatId: number) => void;
+  onChatClick: (chatId: string) => void;
 }) => {
   const styles = useStyles();
   return (
     <div style={styles.container}>
-      <ChatsList chats={chats} />
+      <ChatsList chats={chats} onClick={onChatClick} />
     </div>
   );
 };

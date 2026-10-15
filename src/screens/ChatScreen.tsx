@@ -1,5 +1,5 @@
 type ChatScreenProps = {
-  chatId: number;
+  chatId: string;
   onGoBack: () => void;
 };
 

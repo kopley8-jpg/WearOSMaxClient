@@ -162,12 +162,12 @@ export class MaxClient extends EventEmitter {
 
   /** История чата. from/forward/backward — параметры протокола MAX. */
   async getHistory(
-    chatId: ChatId,
+    chatId: string,
     opts: { from?: bigint; forward?: number; backward?: number } = {},
   ) {
     const from = opts.from ?? BigInt(Date.now());
     return this.request(49, {
-      chatId: MAX_INT64(chatId),
+      chatId: MAX_INT64(BigInt(chatId)),
       from: Number(from), // веб шлёт обычный uint64, не ext
       forward: opts.forward ?? 0,
       backward: opts.backward ?? 30,

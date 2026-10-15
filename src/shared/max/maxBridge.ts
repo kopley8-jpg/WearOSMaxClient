@@ -17,6 +17,7 @@
 type PendingRequest = {
   successType: string;
   errorType: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolve: (value: any) => void;
   reject: (error: Error) => void;
 };
@@ -86,20 +87,24 @@ export class MaxBridge extends EventTarget {
 
   /** Авторизация в MAX (INIT+LOGIN на сервере). Возвращает { profile, chats, contacts, ... }. */
   auth() {
-    return this.request<any>("AUTH", "AUTH_SUCCESS", "AUTH_ERROR");
+    return this.request("AUTH", "AUTH_SUCCESS", "AUTH_ERROR");
   }
-
-  getHistory() {
-    return this.request<any>("GET_HISTORY", "HISTORY_SUCCESS", "HISTORY_ERROR");
+  // path - id чата
+  getHistory(path: string) {
+    return this.request("GET_HISTORY", "HISTORY_SUCCESS", "HISTORY_ERROR", {
+      path,
+    });
   }
 
   /** path — путь к mp3/wav и т.п. на диске сервера (не файл из браузера!). */
   sendVoice(path: string) {
-    return this.request<any>("SEND_VOICE", "VOICE_SUCCESS", "VOICE_ERROR", { path });
+    return this.request("SEND_VOICE", "VOICE_SUCCESS", "VOICE_ERROR", { path });
   }
 
   uploadAudio(path: string) {
-    return this.request<any>("UPLOAD_AUDIO", "UPLOAD_SUCCESS", "UPLOAD_ERROR", { path });
+    return this.request("UPLOAD_AUDIO", "UPLOAD_SUCCESS", "UPLOAD_ERROR", {
+      path,
+    });
   }
 
   private request<T>(
@@ -109,7 +114,9 @@ export class MaxBridge extends EventTarget {
     payload?: Record<string, unknown>,
   ): Promise<T> {
     if (!this.isConnected) {
-      return Promise.reject(new Error("Bridge is not connected — call connect() first"));
+      return Promise.reject(
+        new Error("Bridge is not connected — call connect() first"),
+      );
     }
 
     return new Promise((resolve, reject) => {

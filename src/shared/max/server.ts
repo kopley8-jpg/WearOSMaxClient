@@ -50,7 +50,7 @@ server.on("connection", (browserWs) => {
 
         case "GET_HISTORY": {
           if (!client.isConnected) await client.connect();
-          const result = await client.getHistory(DEFAULT_CHAT_ID);
+          const result = await client.getHistory(message.path);
           reply("HISTORY_SUCCESS", result);
           break;
         }
